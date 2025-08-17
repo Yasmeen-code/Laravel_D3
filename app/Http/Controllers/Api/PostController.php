@@ -10,23 +10,26 @@ use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
-
     public function index()
     {
         try {
-            $posts = Post::with('user')->latest()->paginate(10);
-            
+            $posts = Post::with('user:id,name')
+                ->select('id', 'title', 'content', 'user_id') 
+                ->latest()
+                ->paginate(10);
+
+            $data = $posts->map(function ($post) {
+                return [
+                    'id' => $post->id,
+                    'title' => $post->title,
+                    'content' => $post->content,
+                    'creator' => $post->user->name, 
+                ];
+            });
+
             return response()->json([
                 'success' => true,
-                'data' => $posts->items(),
-                'pagination' => [
-                    'current_page' => $posts->currentPage(),
-                    'per_page' => $posts->perPage(),
-                    'total' => $posts->total(),
-                    'last_page' => $posts->lastPage(),
-                    'from' => $posts->firstItem(),
-                    'to' => $posts->lastItem(),
-                ]
+                'data' => $data,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -42,7 +45,7 @@ class PostController extends Controller
         try {
             $validated = $request->validated();
             $validated['user_id'] = Auth::id();
-            
+
             $post = Post::create($validated);
             $post->load('user');
 
@@ -64,7 +67,7 @@ class PostController extends Controller
     {
         try {
             $post = Post::with('user')->find($id);
-            
+
             if (!$post) {
                 return response()->json([
                     'success' => false,
@@ -89,21 +92,13 @@ class PostController extends Controller
     {
         try {
             $post = Post::find($id);
-            
+
             if (!$post) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Post not found'
                 ], 404);
             }
-
-            if ($post->user_id !== Auth::id()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized to update this post'
-                ], 403);
-            }
-
             $post->update($request->validated());
             $post->load('user');
 
@@ -125,7 +120,7 @@ class PostController extends Controller
     {
         try {
             $post = Post::find($id);
-            
+
             if (!$post) {
                 return response()->json([
                     'success' => false,
