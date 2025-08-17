@@ -37,8 +37,25 @@ class StorePostRequest extends FormRequest
         return [
             'title.required' => 'The title is required.',
             'content.required' => 'The content is required.',
-            'user_id.required' => 'The user ID is required.',
-            'user_id.exists' => 'The selected user does not exist.',
         ];
-        }
+    }
+
+    /**
+     * Handle a failed validation attempt.
+     *
+     * @param  \Illuminate\Contracts\Validation\Validator  $validator
+     * @return void
+     *
+     * @throws \Illuminate\Http\Exceptions\HttpResponseException
+     */
+    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+    {
+        throw new \Illuminate\Http\Exceptions\HttpResponseException(
+            response()->json([
+                'success' => false,
+                'message' => 'Validation errors',
+                'errors' => $validator->errors()
+            ], 422)
+        );
+    }
 }
