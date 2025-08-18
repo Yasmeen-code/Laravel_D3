@@ -19,7 +19,7 @@
 
             <a href="{{ route('posts.edit', $post->id) }}" 
                class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl shadow hover:bg-blue-700 transition">
-                ✏️ Edit
+                Edit
             </a>
         </div>
     </div>

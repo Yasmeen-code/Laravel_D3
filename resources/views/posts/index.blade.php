@@ -42,7 +42,5 @@
             <p class="text-center text-gray-600 text-lg">No Posts Yet</p>
         @endif
     </div>
-
-
 </body>
 </html>
