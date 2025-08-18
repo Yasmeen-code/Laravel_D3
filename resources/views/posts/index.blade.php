@@ -11,7 +11,7 @@
     <nav class="bg-blue-600 p-4 text-white shadow-md">
         <div class="container mx-auto flex justify-between items-center">
             <h1 class="text-2xl font-bold">My Blog</h1>
-            <a href="{{ url('/') }}" class="hover:underline">Home</a>
+            <a href="{{ url('/dashboard') }}" class="hover:underline">Home</a>
         </div>
     </nav>
 

@@ -5,39 +5,19 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePostRequest;
 use App\Models\Post;
+use App\Http\Resources\PostResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+
+use function Pest\Laravel\post;
 
 class PostController extends Controller
 {
     public function index()
     {
-        try {
-            $posts = Post::with('user:id,name')
-                ->select('id', 'title', 'content', 'user_id') 
-                ->latest()
-                ->paginate(10);
-
-            $data = $posts->map(function ($post) {
-                return [
-                    'id' => $post->id,
-                    'title' => $post->title,
-                    'content' => $post->content,
-                    'creator' => $post->user->name, 
-                ];
-            });
-
-            return response()->json([
-                'success' => true,
-                'data' => $data,
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to fetch posts',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+      $posts=post::all();
+      return PostResource::collection($posts);
+        
     }
 
     public function store(StorePostRequest $request)
@@ -65,27 +45,15 @@ class PostController extends Controller
 
     public function show($id)
     {
-        try {
-            $post = Post::with('user')->find($id);
-
-            if (!$post) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Post not found'
-                ], 404);
-            }
-
-            return response()->json([
-                'success' => true,
-                'data' => $post
-            ], 200);
-        } catch (\Exception $e) {
+       $post = Post::find($id);
+       if (!$post) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch post',
-                'error' => $e->getMessage()
-            ], 500);
+                'message' => 'Post not found'
+            ], 404);
         }
+
+        return new PostResource($post);
     }
 
     public function update(StorePostRequest $request, $id)
